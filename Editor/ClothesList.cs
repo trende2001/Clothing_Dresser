@@ -9,19 +9,19 @@ public class ClothesList : ListView
 
 	ClothingDresser Dresser;
 
+
 	public ClothesList( Widget parent, ClothingDresser dresser, IEnumerable<Clothing> clothingFilter ) : base( parent )
 	{
 		Instance = this;
 
 		ItemContextMenu = ShowItemContext;
 		ItemClicked = OnItemClicked;
-		Margin = 8;
-		ItemSpacing = 4;
 		MinimumHeight = 500;
+		//ItemAlign = Sandbox.UI.Align.SpaceBetween;
 
 		Dresser = dresser;
 
-		ItemSize = new Vector2( 78, 88 + 12 );
+		ItemSize = new Vector2( 96, 114 );
 
 		BuildItems( clothingFilter.Where( x => x.Title.Contains( ClothingDresserEditor.SearchQuery, System.StringComparison.OrdinalIgnoreCase ) ).Cast<object>() );
 	}
@@ -106,6 +106,9 @@ public class ClothesList : ListView
 		if ( item.Object is not Clothing clothing )
 			return;
 
+		Paint.Antialiasing = true;
+		Paint.TextAntialiasing = true;
+
 		var asset = AssetSystem.FindByPath( clothing.ResourcePath );
 
 		if ( asset is null )
@@ -118,26 +121,43 @@ public class ClothesList : ListView
 
 		if ( Dresser.EnabledClothing.ContainsValue( clothing ) )
 		{
-			Paint.SetBrush( Theme.Green.WithAlpha( 0.5f ) );
 			Paint.ClearPen();
-			Paint.DrawRect( item.Rect, 4 );
+			Paint.SetBrush( item.Hovered ? Theme.Red.WithAlpha( 0.10f ) : Theme.Green.WithAlpha( 0.10f ) );
+			Paint.SetPen( item.Hovered ? Theme.Red.WithAlpha( 0.50f ) : Theme.Green.WithAlpha( 0.90f ) );
+			Paint.DrawRect( item.Rect.Shrink( 2 ), 3 );
 		}
 
 		if ( Paint.HasMouseOver )
 		{
-			Paint.SetBrush( Theme.Blue.WithAlpha( item.Selected ? 0.5f : 0.2f ) );
+			Paint.SetBrush( Theme.Blue.WithAlpha( item.Selected ? 0.2f : 0.2f ) );
 			Paint.ClearPen();
 			Paint.DrawRect( item.Rect, 4 );
 		}
 
 		var pixmap = asset.GetAssetThumb();
 
-		Paint.Draw( rect.Shrink( 0.1f ), pixmap );
+		Paint.ClearPen();
+		Paint.SetBrush( Theme.White.WithAlpha( 0.01f ) );
+		Paint.SetPen( Theme.White.WithAlpha( 0.05f ) );
+		Paint.DrawRect( item.Rect.Shrink( 2 ), 3 );
 
-		Paint.SetDefaultFont( 9 );
+		Paint.Draw( item.Rect.Shrink( item.Hovered ? 2 : 6 ), pixmap );
 
-		Paint.SetPen( Color.White );
-		Paint.DrawText( item.Rect.Shrink( 1 ), clothing.Title, TextFlag.CenterBottom );
+
+		var textRect = rect.Shrink( 4 );
+		textRect.Top = textRect.Top + 50;
+		textRect.Top = textRect.Top + 25;
+
+		Paint.ClearPen();
+		Paint.SetBrush( Theme.Black.WithAlpha( 0.5f ) );
+		Paint.DrawRect( textRect, 0.0f );
+
+		Paint.Antialiasing = true;
+
+		Paint.SetPen( Theme.White, 2.0f );
+		Paint.ClearBrush();
+		Paint.SetFont( "Roboto Condensed", 9, 700 );
+		Paint.DrawText( textRect, clothing.Title );
 	}
 
 	protected override void OnPaint()

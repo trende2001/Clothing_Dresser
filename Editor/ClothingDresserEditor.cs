@@ -21,12 +21,11 @@ public class ClothingDresserEditor : ComponentEditorWidget
 	public ClothingDresserEditor( SerializedObject obj ) : base( obj )
 	{
 		Layout = Layout.Column();
-		Layout.Margin = new( 5, 5 );
-
+		Layout.Margin = new( 15, 5 );
 
 		var tabBar = new SegmentedControl( this );
 		tabBar.SetSizeMode( SizeMode.Flexible, SizeMode.CanShrink );
-
+		tabBar.FixedHeight = 35f;
 
 		var row = Layout.AddRow();
 		row.Add( tabBar );
@@ -55,11 +54,7 @@ public class ClothingDresserEditor : ComponentEditorWidget
 
 		var secondRow = Layout.AddRow();
 
-		var header = new Label( "Clothing" );
-		header.SetStyles( "font-size: 13px;" );
-
 		Filter = new LineEdit();
-		Filter.SetStyles( "font-family: Poppins; font-weight: 500;" );
 		Filter.PlaceholderText = "Filter..";
 		Filter.FixedHeight = 30f;
 		Filter.TextEdited += ( string text ) =>
@@ -77,9 +72,9 @@ public class ClothingDresserEditor : ComponentEditorWidget
 
 
 		var resetClothing = new Button( "Reset Clothing" );
+		resetClothing.Icon = "refresh";
 		resetClothing.ButtonType = "danger";
-		resetClothing.FixedWidth = 112f;
-		resetClothing.SetStyles( "font-size: 13px;" );
+		resetClothing.SetStyles( "font-size: 13px; padding: 8px;" );
 
 		resetClothing.Clicked = () =>
 		{
@@ -91,12 +86,9 @@ public class ClothingDresserEditor : ComponentEditorWidget
 			dresser?.EnabledClothing.Clear();
 		};
 
-		secondRow.Margin = new( 15, 10 );
-		secondRow.Add( header );
-		secondRow.Add( resetClothing );
-
 		var checkbox = new Checkbox();
-		checkbox.Text = "Filter Enabled";
+		checkbox.SetStyles( "padding: 10px;" );
+		checkbox.Text = "Show Enabled";
 		checkbox.Toggled += () =>
 		{
 			if ( checkbox.Value )
@@ -109,17 +101,16 @@ public class ClothingDresserEditor : ComponentEditorWidget
 			}
 		};
 
-		var thirdRow = Layout.AddRow();
-		thirdRow.Margin = new( 15, 0 );
-		thirdRow.Add( Filter );
-		thirdRow.AddStretchCell();
-		thirdRow.Add( checkbox );
+		secondRow.Margin = new( 0, 10 );
+		secondRow.Add( Filter );
+		secondRow.Add( checkbox );
+		secondRow.AddStretchCell();
+		secondRow.Add( resetClothing );
 
 		ClothesList = new ClothesList( null, dresser, AllClothing );
 
 		var tlayout = Layout.AddColumn();
 		tlayout.Spacing = 8;
-		tlayout.Margin = 16;
 		tlayout.Add( ClothesList );
 	}
 }
