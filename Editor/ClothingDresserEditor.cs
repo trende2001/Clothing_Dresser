@@ -1,27 +1,19 @@
-﻿
-
-using Editor;
-using Sandbox;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Editor;
+using Sandbox;
+using Sandbox.UI;
+using Button = Editor.Button;
+using Checkbox = Editor.Checkbox;
 
-[CustomEditor( typeof( ClothingDresser ) )]
+[CustomEditor( typeof(ClothingDresser) )]
 public class ClothingDresserEditor : ComponentEditorWidget
 {
-
-	public static List<Clothing> AllClothing => ResourceLibrary.GetAll<Clothing>().ToList();
-
-	public static LineEdit Filter { get; set; }
-
-	public ClothesList ClothesList { get; set; }
-
-	public static string SearchQuery { get; set; } = string.Empty;
-
 	public ClothingDresserEditor( SerializedObject obj ) : base( obj )
 	{
 		Layout = Layout.Column();
-		Layout.Margin = new( 15, 5 );
+		Layout.Margin = new Margin( 15, 5 );
 
 		var tabBar = new SegmentedControl( this );
 		tabBar.SetSizeMode( SizeMode.Flexible, SizeMode.CanShrink );
@@ -37,7 +29,7 @@ public class ClothingDresserEditor : ComponentEditorWidget
 			tabBar.AddOption( category.ToString() );
 		}
 
-		tabBar.OnSelectedChanged += ( string tab ) =>
+		tabBar.OnSelectedChanged += tab =>
 		{
 			if ( tab == "None" )
 			{
@@ -45,9 +37,8 @@ public class ClothingDresserEditor : ComponentEditorWidget
 				return;
 			}
 
-			ClothesList.BuildItems( AllClothing.Where( x => x.Category.ToString() == tab ).Cast<object>() );
+			ClothesList.BuildItems( AllClothing.Where( x => x.Category.ToString() == tab ) );
 		};
-
 
 
 		var dresser = SerializedObject.Targets.FirstOrDefault() as ClothingDresser;
@@ -57,13 +48,14 @@ public class ClothingDresserEditor : ComponentEditorWidget
 		Filter = new LineEdit();
 		Filter.PlaceholderText = "Filter..";
 		Filter.FixedHeight = 30f;
-		Filter.TextEdited += ( string text ) =>
+		Filter.TextEdited += text =>
 		{
 			if ( !string.IsNullOrEmpty( text ) )
 			{
 				// Log.Info( text );
 				SearchQuery = text;
-				ClothesList.BuildItems( AllClothing.Where( x => x.Title.Contains( SearchQuery, StringComparison.OrdinalIgnoreCase ) ).Cast<object>() );
+				ClothesList.BuildItems( AllClothing.Where( x =>
+					x.Title.Contains( SearchQuery, StringComparison.OrdinalIgnoreCase ) ) );
 				return;
 			}
 
@@ -73,7 +65,7 @@ public class ClothingDresserEditor : ComponentEditorWidget
 
 		var resetClothing = new Button( "Reset Clothing" );
 		resetClothing.Icon = "refresh";
-		resetClothing.ButtonType = "danger";
+		resetClothing.Tint = new Color( 179, 72, 64 );
 		resetClothing.SetStyles( "font-size: 13px; padding: 8px;" );
 
 		resetClothing.Clicked = () =>
@@ -93,7 +85,7 @@ public class ClothingDresserEditor : ComponentEditorWidget
 		{
 			if ( checkbox.Value )
 			{
-				ClothesList.BuildItems( AllClothing.Where( x => dresser.EnabledClothing.ContainsValue( x ) ).Cast<object>() );
+				ClothesList.BuildItems( AllClothing.Where( x => dresser.EnabledClothing.ContainsValue( x ) ) );
 			}
 			else
 			{
@@ -101,7 +93,7 @@ public class ClothingDresserEditor : ComponentEditorWidget
 			}
 		};
 
-		secondRow.Margin = new( 0, 10 );
+		secondRow.Margin = new Margin( 0, 10 );
 		secondRow.Add( Filter );
 		secondRow.Add( checkbox );
 		secondRow.AddStretchCell();
@@ -113,4 +105,12 @@ public class ClothingDresserEditor : ComponentEditorWidget
 		tlayout.Spacing = 8;
 		tlayout.Add( ClothesList );
 	}
+
+	public static List<Clothing> AllClothing => ResourceLibrary.GetAll<Clothing>().ToList();
+
+	public static LineEdit Filter { get; set; }
+
+	public ClothesList ClothesList { get; set; }
+
+	public static string SearchQuery { get; set; } = string.Empty;
 }
